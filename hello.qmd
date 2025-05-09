@@ -1,0 +1,125 @@
+---
+title: "Ana Julia Mueller Persuhn<3"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(tidyverse)
+library(WDI)
+
+# DADOS EM PAINEL
+Acessoenergia <- WDI(country = 'all',
+                     indicator = 'EG.ELC.ACCS.ZS',
+                     start=1990)
+
+# CORTE TRANSVERSAL
+Acessoenergia1990 <- WDI(country = 'all',
+                         indicator = 'EG.ELC.ACCS.ZS',
+                         start = 1990, end = 1990)
+
+# SERIE TEMPORAL
+AcessoenergiaBR <- WDI(country = 'BR',
+                       indicator = 'EG.ELC.ACCS.ZS',
+                     start=1990)
+```
+
+## O Que é o Dado de Acesso à Eletricidade (EG.ELC.ACCS.ZS)?
+
+Esse dado mostra **quantas pessoas têm acesso à eletricidade em cada país**, em forma de porcentagem da população total. Por exemplo, se um país tem 90%, quer dizer que 90% das pessoas conseguem usar energia elétrica em casa, no trabalho, na escola, etc. Esse número é muito importante porque ter eletricidade é básico para viver bem, sem ela, é mais difícil estudar, trabalhar, cozinhar e até cuidar da saúde. Esse indicador é fornecido pelo Banco Mundial e é **usado para entender o nível de desenvolvimento de um país e a qualidade de vida da população.**
+
+## Como Está o Brasil em Comparação com o Mundo?
+
+O Brasil apresenta um acesso à eletricidade muito superior ao de diversos países, alcançando mais de 80% da população desde os anos 1990, e ao longo do tempo foi chegando perto de 100%. Em comparação, muitos países, especialmente os mais pobres, ainda enfrentam desafios significativos nesse aspecto. Países como Sudão do Sul, Chade, Burundi, República Centro-Africana e Malawi, por exemplo, ainda têm uma parte considerável da população sem acesso à eletricidade. Isso evidencia as desigualdades persistentes no mundo.
+
+![](images/image-lampada2.png){fig-align="center" width="650" height="315"}
+
+```{r}
+#| label: grafAcessoenergia
+#| warning: false
+#| echo: false
+
+Acessoenergia <- Acessoenergia %>% 
+  filter(!is.na(EG.ELC.ACCS.ZS))
+
+# Cria uma variável que identifica o Brasil
+Acessoenergia <- Acessoenergia %>%
+  mutate(Cor = ifelse(country == "Brazil", "Brasil", "Outros"))
+
+# Gráfico com melhorias visuais
+grafAcessoenergia <- ggplot(Acessoenergia,
+                            aes(x = year,
+                                y = EG.ELC.ACCS.ZS,
+                                color = Cor)) +
+  geom_point(alpha = 0.7) +
+  scale_color_manual(values = c("Brasil" = "red", "Outros" = "gray70")) +
+  labs(title = "Acesso à Eletricidade no Mundo ao Longo do Tempo",
+       x = "Ano",
+       y = "% da População",
+       color = "") +
+  theme_minimal(base_size = 14) +
+  theme(
+  plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+  theme(legend.position = "bottom")
+  )
+
+# Exibe o gráfico
+print(grafAcessoenergia)
+```
+
+```{r}
+#| label: grafAcessoenergia1990
+#| warning: false
+#| echo: false
+
+# Corrige os dados antes do gráfico
+Acessoenergia1990$cor <- ifelse(Acessoenergia1990$iso2c == "BR", "Brasil", "Outros")
+
+# Gráfico corrigido
+grafAcessoenergia1990 <- ggplot(Acessoenergia1990,
+                                aes(x = year,
+                                    y = EG.ELC.ACCS.ZS,
+                                    color = cor)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_manual(values = c("Brasil" = "red", "Outros" = "#69b3a2")) +
+  labs(
+    title = "Acesso à Energia Elétrica em 1990",
+    x = "Ano",
+    y = "% da População"
+  ) +
+  scale_x_continuous(breaks = c(1990), labels = c("1990")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    legend.title = element_blank()
+  )
+
+print(grafAcessoenergia1990)
+```
+
+```{r}
+#| label: grafAcessoenergiaBR
+#| warning: false
+#| echo: false
+
+grafAcessoenergiaBR <- ggplot(AcessoenergiaBR,
+                    aes(x = year, y = EG.ELC.ACCS.ZS)) +
+  geom_line(color = "#E74C3C", size = 1.2) +  # Vermelho moderno e linha mais espessa
+  labs(
+    title = "Acesso à Eletricidade no Brasil (1990 em diante)",
+    x = "Ano",
+    y = "% da População"
+  ) +
+  theme_minimal(base_size = 14) +  # Tema mais moderno
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),  # Centraliza e destaca o título
+    axis.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+
+# Imprimir o gráfico
+print(grafAcessoenergiaBR)
+```
